@@ -2,7 +2,7 @@ test_motifScanHits <- function(){
     data(zebrafishPromoters)
     data(TBPpwm)
     checkEquals(motifScanHits(regionsSeq = zebrafishPromoters[1:5],
-    motifPWM = TBPpwm, minScore = "80%", seqOrder = c(1,4,2,3,5)),
+    motifPWM = TBPpwm, minScore = "95%", seqOrder = c(1,4,2,3,5)),
     data.frame(sequence = as.integer(c(1,1,1,2,4,4)),
     position = as.integer(c(51,53,55,271,761,815)), value = rep(1,6)))
 }

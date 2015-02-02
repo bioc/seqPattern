@@ -29,8 +29,15 @@ motifScanHits(regionsSeq, motifPWM, minScore = "80\%",
     \item{minScore}{
         The minimum score for counting a motif hit. Can be given as a character
         string containing a percentage (\emph{e.g.} \code{"85\%"}) of the
-        highest possible PWM score or a single number specifying score
-        threshold.
+        PWM score or a single number specifying score threshold. If a percentage
+        is given, it is converted to a score value taking into account both
+        minimal and maximal possible PWM scores as follows:
+        \code{minPWMscore + percThreshold/100 * (maxPWMscore - minPWMscore)}
+        This differs from the formula in the \code{\link{matchPWM}} function
+        from the \code{Biostrings} package which takes into account only the 
+        maximal possible PWM score and considers the given percentage as the 
+        percentage of that maximal score:
+        \code{percThreshold/100 * maxPWMscore}
     }
     \item{seqOrder}{
         Integer vector specifying the order of the provided input sequences.

@@ -26,7 +26,7 @@ BiocStyle::latex()
 oligonucleotide sequence patterns and motif occurrences}
 
 \author{Vanja Haberle \footnote{vanja.haberle@gmail.com}}
-\date{December 16, 2014}
+\date{February 2, 2015}
 
 \begin{document}
 <<setup, echo=FALSE>>=
@@ -348,12 +348,12 @@ TBPpwm
 
 The \Rcode{plotMotifDensityMap} takes a PWM as an input, scans all sequences
 for the occurrence of the motif above the specified match threshold
-(\emph{e.g.} 85\%) and visualises the density of the motif
+(\emph{e.g.} 90\%) and visualises the density of the motif
 (Figure~\ref{fig:MotifDensity}, left):
 
 <<eval=FALSE>>=
 plotMotifDensityMap(regionsSeq = zebrafishPromotersTSSflankSeq, 
-            motifPWM = TBPpwm, minScore = "85%", 
+            motifPWM = TBPpwm, minScore = "90%", 
             seqOrder = order(zebrafishPromotersTSSflank$interquantileWidth),
             flankUp = 400, flankDown = 800)
 @
@@ -372,7 +372,7 @@ plotMotifScanScores(regionsSeq = zebrafishPromotersTSSflankSeq,
 \begin{figure}[H]
 \centering
 \includegraphics[width=120mm,height=60mm]{images/MotifDensity.jpg}
-\caption{Density of TATA-box motif occurrence above 85\% of PWM score (left)
+\caption{Density of TATA-box motif occurrence above 90\% of PWM score (left)
 and heatmap of PWM scanning scores along all sequences (right) in regions
 flanking dominant TSS in zebrafish 24h embryo promoters ordered by promoter
 width}
@@ -405,7 +405,7 @@ respectively.
 <<>>=
 motifOccurrence <- motifScanHits(regionsSeq = 
             zebrafishPromotersTSSflankSeq[1:50], 
-            motifPWM = TBPpwm, minScore = "85%", seqOrder = 
+            motifPWM = TBPpwm, minScore = "90%", seqOrder = 
             order(zebrafishPromotersTSSflank$interquantileWidth[1:50]))
 head(motifOccurrence)
 @

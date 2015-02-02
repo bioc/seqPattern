@@ -1,8 +1,8 @@
 Package: seqPattern
 Title: Visualising oligonucleotide patterns and motif occurrences
         across a set of sorted sequences
-Version: 0.99.1
-Date: 17-12-2014
+Version: 0.99.2
+Date: 02-02-2015
 Author: Vanja Haberle <vanja.haberle@gmail.com>
 Maintainer: Vanja Haberle <vanja.haberle@gmail.com>
 Imports: Biostrings, GenomicRanges, IRanges, KernSmooth, marray,

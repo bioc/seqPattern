@@ -2,7 +2,7 @@ test_.scan.sequence.with.pwm <- function(){
     data(zebrafishPromoters)
     data(TBPpwm)
     checkEquals(seqPattern:::.scan.sequence.with.pwm(pwm = TBPpwm,
-    seq = zebrafishPromoters[[1]], minScore = "80%"), c(51,53,55))
+    seq = zebrafishPromoters[[1]], minScore = "90%"), c(51, 53, 55, 204, 344, 905))
 }
 
 test_.get.scanning.score <- function(){
