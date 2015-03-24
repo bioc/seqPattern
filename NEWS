@@ -1,3 +1,11 @@
+Updated to version 0.99.3 (24/03/2015)
+23/03/2015    Added function plotMotifOccurrenceAverage() for plotting
+              average profile of motif occurrence.
+21/03/2015    Added function plotPatternOccurrenceAverage() for plotting
+              average profiles of patterns occurrence.
+18/03/2015    Fixed the problem of motif matching to Ns (which are assigned 
+              weights 0) when PWM has very negative values.
+
 Updated to version 0.99.2 (02/02/2015)
 02/02/2015    Updated the man pages and the vignette.
 01/02/2015    Adjusted the calculation of PWM score percentage for motif

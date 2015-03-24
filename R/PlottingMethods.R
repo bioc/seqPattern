@@ -83,6 +83,59 @@ function(regionsSeq, patterns, seqOrder = c(1:length(regionsSeq)),
 
 
 setGeneric(
+name="plotPatternOccurrenceAverage",
+def=function(regionsSeq, patterns, flankUp = NULL, flankDown = NULL,
+smoothingWindow = 1, color = rainbow(length(patterns)),
+xLabel = "Distance to reference point (bp)", yLabel = "Relative frequency",
+cexAxis = 1, addReferenceLine = TRUE, plotLegend = TRUE,
+cexLegend = 1, useMulticore = FALSE, nrCores = NULL, add = FALSE, ...){
+    standardGeneric("plotPatternOccurrenceAverage")
+}
+)
+
+setMethod("plotPatternOccurrenceAverage",
+signature(regionsSeq = "DNAStringSet"),
+function(regionsSeq, patterns, flankUp = NULL, flankDown = NULL,
+    smoothingWindow = 1, color = rainbow(length(patterns)),
+    xLabel = "Distance to reference point (bp)", yLabel = "Relative frequency",
+    cexAxis = 1, addReferenceLine = TRUE, plotLegend = TRUE,
+    cexLegend = 1, useMulticore = FALSE, nrCores = NULL, add = FALSE, ...){
+        
+        if(!(length(unique(width(regionsSeq))) == 1)){
+            stop("All sequences in the input DNAStringSet must have the
+            same length!")
+        }
+        if(length(patterns) == 0){
+            stop("At least one pattern needs to be specified!")
+        }
+        
+        if(length(flankUp) == 0){
+            flankUp <- round(width(regionsSeq)[1]/2)
+        }
+        if(length(flankDown) == 0){
+            flankDown <- width(regionsSeq)[1] - flankUp
+        }
+        
+        message("\nGetting oligonucleotide occurrence matrix...")
+        patterns.occurence.melted.list <- getPatternOccurrenceList(regionsSeq =
+        regionsSeq, patterns = patterns, seqOrder = c(1:length(regionsSeq)),
+        useMulticore = useMulticore, nrCores = nrCores)
+        pattern.widths <- width(patterns)
+        names(pattern.widths) <- patterns
+        
+        .plot.windowed.average(occurence.melted.list =
+        patterns.occurence.melted.list, nr.seq = length(regionsSeq),
+        pattern.widths = pattern.widths, flankUp = flankUp, flankDown =
+        flankDown, smoothingWindow = smoothingWindow, color = color, xLabel =
+        xLabel, yLabel = yLabel, cexAxis = cexAxis, addReferenceLine =
+        addReferenceLine, plotLegend = plotLegend, cexLegend = cexLegend,
+        add = add, ...)
+
+    }
+)
+
+
+setGeneric(
 name="plotMotifDensityMap",
 def=function(regionsSeq, motifPWM, minScore = "80%",
     seqOrder = c(1:length(regionsSeq)), flankUp = NULL, flankDown = NULL,
@@ -124,6 +177,12 @@ function(regionsSeq, motifPWM, minScore = "80%",
         message("\nGetting motif occurrence matrix...")
         motif.occurence.melted <- motifScanHits(regionsSeq = regionsSeq,
         motifPWM = motifPWM, minScore = minScore, seqOrder = seqOrder)
+        
+        if(nrow(motif.occurence.melted) == 0){
+            cat("\nNo motif hits above specified score threshold found!\n
+Try lowering the score threshold.\nExiting without making a density plot.\n\n")
+        }else{
+        
         motif.occurence.melted.list <- list(motif = motif.occurence.melted)
         
         a <- .pattern.smoothscatter(melted = motif.occurence.melted.list,
@@ -135,8 +194,56 @@ function(regionsSeq, motifPWM, minScore = "80%",
         scale.width = scaleWidth, add.label = FALSE, cex.label = cexAxis,
         addReferenceLine = addReferenceLine, plotColorLegend = plotColorLegend,
         out = outFile, plot.width = plotWidth, plot.height = plotHeight)
-    
+        }
     }
+)
+
+
+setGeneric(
+name="plotMotifOccurrenceAverage",
+def=function(regionsSeq, motifPWM, minScore = "80%", flankUp = NULL,
+flankDown = NULL, smoothingWindow = 1, color = "black",
+xLabel = "Distance to reference point (bp)", yLabel = "Relative frequency",
+cexAxis = 1, addReferenceLine = TRUE, plotLegend = FALSE, cexLegend = 1,
+add = FALSE, ...){
+    standardGeneric("plotMotifOccurrenceAverage")
+}
+)
+
+setMethod("plotMotifOccurrenceAverage",
+signature(regionsSeq = "DNAStringSet", motifPWM = "matrix"),
+function(regionsSeq, motifPWM, minScore = "80%", flankUp = NULL,
+flankDown = NULL, smoothingWindow = 1, color = "black",
+xLabel = "Distance to reference point (bp)", yLabel = "Relative frequency",
+cexAxis = 1, addReferenceLine = TRUE, plotLegend = FALSE, cexLegend = 1,
+add = FALSE, ...){
+    
+    if(!(length(unique(width(regionsSeq))) == 1)){
+        stop("All sequences in the input DNAStringSet must have the
+        same length!")
+    }
+    if(length(flankUp) == 0){
+        flankUp <- round(width(regionsSeq)[1]/2)
+    }
+    if(length(flankDown) == 0){
+        flankDown <- width(regionsSeq)[1] - flankUp
+    }
+    
+    message("\nGetting motif occurrence matrix...")
+    motif.occurence.melted <- motifScanHits(regionsSeq = regionsSeq, motifPWM =
+        motifPWM, minScore = minScore, seqOrder = c(1:length(regionsSeq)))
+    motif.occurence.melted.list <- list(motif = motif.occurence.melted)
+    pattern.widths <- ncol(motifPWM)
+    names(pattern.widths) <- "motif"
+    
+    .plot.windowed.average(occurence.melted.list = motif.occurence.melted.list,
+    nr.seq = length(regionsSeq), pattern.widths = pattern.widths, flankUp =
+    flankUp, flankDown = flankDown, smoothingWindow = smoothingWindow, color =
+    color, xLabel = xLabel, yLabel = yLabel, cexAxis = cexAxis,
+    addReferenceLine = addReferenceLine, plotLegend = plotLegend, cexLegend =
+    cexLegend, add = add, ...)
+    
+}
 )
 
 

@@ -26,7 +26,7 @@ function(regionsSeq, motifPWM, minScore = "80%",
         
         data.frame(sequence = rep(c(1:length(pwm.match)),
         times = unlist(lapply(pwm.match, length))),
-        position = unlist(pwm.match), value = 1)
+        position = unlist(pwm.match), value = rep(1, times = length(unlist(pwm.match))))
     
     }
 )
@@ -60,7 +60,8 @@ function(regionsSeq, motifPWM, seqOrder = c(1:length(regionsSeq)),
             c(1:(length(regionsSeq[[1]]) - ncol(motifPWM) + 1)))
         })
         scanning.score.matrix <- do.call(rbind, scanning.score.list)
-        
+        scanning.score.matrix[scanning.score.matrix < minScore(motifPWM)] <- minScore(motifPWM)
+
         if(asPercentage){
             max.score <- maxScore(motifPWM)
             min.score <- minScore(motifPWM)

@@ -42,7 +42,10 @@ plotPatternDensityMap(regionsSeq, patterns, seqOrder = c(1:length(regionsSeq)),
     \item{flankUp, flankDown}{
         The number of base-pairs upstream and downstream of the reference
         position in the provided sequences, respectively.
-        \code{flankUp + flankDown} must sum up to the length of the sequences.
+        \code{flankUp + flankDown} must sum up to the length of the sequences. 
+        If no values are provided both \code{flankUp} and \code{flankDown} are 
+        set to be half of the length of the input sequences, \emph{i.e.} the 
+        reference position is assumed to be in the middle of the sequences.
     }
     \item{nBin}{
         Numeric vector with two values containing the number of equally spaced

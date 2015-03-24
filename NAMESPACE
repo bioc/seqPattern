@@ -8,4 +8,5 @@ importFrom(marray, maPalette)
 importFrom(plotrix, color.legend)
 
 exportMethods(motifScanHits, motifScanScores, getPatternOccurrenceList,
-plotPatternDensityMap, plotMotifDensityMap, plotMotifScanScores)
+plotPatternDensityMap, plotPatternOccurrenceAverage, plotMotifDensityMap,
+plotMotifOccurrenceAverage, plotMotifScanScores)
