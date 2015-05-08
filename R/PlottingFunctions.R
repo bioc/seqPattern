@@ -58,17 +58,36 @@ xlab=NULL, ylab=NULL, xlim, ylim, xaxs=par("xaxs"), yaxs=par("yaxs"), ...){
     }
 }
 
+.myColorPalette <- function(colorName){
+    colors.df <- data.frame(midcol=c("palegreen","aquamarine","lightblue",
+        "lavender","mistyrose","peachpuff","lightgoldenrod2","wheat2",
+        "lightgray"), highcol=c("darkgreen","darkslategrey","blue4","purple4",
+        "deeppink4","red4","darkorange4","salmon4","black"),
+        stringsAsFactors = FALSE)
+    rownames(colors.df) <- c("green","cyan","blue","purple","pink","red",
+        "orange","brown","gray")
+    c("white", colors.df[colorName,"midcol"], colors.df[colorName,"highcol"])
+}
+
+log5 <- function(x) {
+    log10(x)/log10(5)
+}
 
 .pattern.smoothscatter <- function(melted, orig, patterns, flankUp=NULL,
-flankDown=NULL, bw=NULL, nbin=NULL, transf=NULL, xTicks=NULL, xTicksAt=NULL,
-xLabel="", yTicks=NULL, yTicksAt=NULL, yLabel="", cex.axis=8, plot.scale=TRUE,
-scale.length=NULL, scale.width=10, add.label=TRUE, cex.label=8,
+flankDown=NULL, bw=NULL, nbin=NULL, color='blue', transf=NULL, xTicks=NULL,
+xTicksAt=NULL, xLabel="", yTicks=NULL, yTicksAt=NULL, yLabel="", cex.axis=8,
+plot.scale=TRUE, scale.length=NULL, scale.width=10, add.label=TRUE, cex.label=8,
 label.col='black', addReferenceLine=TRUE, plotColorLegend=TRUE, out,
 plot.width=2000, plot.height=2000, useMulticore=FALSE, nrCores=NULL){
     
-    colramp <- maPalette(low='white', high='darkblue', mid='lightblue', k=11)
-    scale.factor <- 1
+    
+    mycols <- .myColorPalette(color)
+
     flank <- width(orig)[1]
+    nr.seq <- length(orig)
+    
+    scale.factor <- 2*log5(20)*log5(100)/log5(flank/2) - 2*log5(4)
+
     if(length(nbin) == 0){
         nbin <- c(round(flank*scale.factor), length(orig))
     }
@@ -135,7 +154,7 @@ plot.width=2000, plot.height=2000, useMulticore=FALSE, nrCores=NULL){
             y=max(rows.to.draw)+1-dinuc.subset$sequence, map=a0[[di]],
             axes=FALSE, xaxs="i", yaxs="i", xlab=xLabel, nrpoints=0,
             ylab=yLabel, xlim=c(0.5,flank -0.5), main='', bandwidth=bw,
-            nbin=nbin, colramp=colorRampPalette(colramp), transformation=transf,
+            nbin=nbin, colramp=colorRampPalette(mycols), transformation=transf,
             max.value=max.value[di], pch=20, cex=0.8, col="gray",
             cex.main=1.5, cex.lab = 1.2)
             
@@ -183,7 +202,7 @@ plot.width=2000, plot.height=2000, useMulticore=FALSE, nrCores=NULL){
             y=max(rows.to.draw)+1-dinuc.subset$sequence, map=a0[[di]],
             axes=FALSE, xaxs="i", yaxs="i", xlab=xLabel,nrpoints=0,
             ylab=yLabel, xlim=c(0.5,flank-0.5), main='', bandwidth=bw,
-            nbin=nbin, colramp=colorRampPalette(colramp), transformation=transf,
+            nbin=nbin, colramp=colorRampPalette(mycols), transformation=transf,
             max.value=max.value[di], pch=20, cex=0.8,col="gray",
             cex.main=1.5, cex.lab=1.2)
             
@@ -222,7 +241,7 @@ plot.width=2000, plot.height=2000, useMulticore=FALSE, nrCores=NULL){
     if(plotColorLegend == TRUE){
         png(filename=paste(out,"ColorLegend","png",sep="."),
         width=0.15*plot.height, height=plot.height)
-        f <- colorRampPalette(colramp)
+        f <- colorRampPalette(mycols)
         nr.labels <- 4
         leg <- rep('', 256)
         leg[seq(0.05*256, 0.95*256, length.out=nr.labels)] <-

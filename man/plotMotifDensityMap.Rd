@@ -13,7 +13,7 @@ specified threshold are taken into account and plotted.
 \usage{
 plotMotifDensityMap(regionsSeq, motifPWM, minScore = "80\%",
     seqOrder = c(1:length(regionsSeq)), flankUp = NULL, flankDown = NULL,
-    nBin = NULL, bandWidth = NULL, transf = NULL, xTicks = NULL,
+    nBin = NULL, bandWidth = NULL, color = "blue", transf = NULL, xTicks = NULL,
     xTicksAt = NULL, xLabel = "", yTicks = NULL, yTicksAt = NULL, yLabel = "",
     cexAxis = 8, plotScale = TRUE, scaleLength = NULL, scaleWidth = 15,
     addReferenceLine = TRUE, plotColorLegend = TRUE, outFile = "DensityMap",
@@ -81,6 +81,12 @@ plotMotifDensityMap(regionsSeq, motifPWM, minScore = "80\%",
         compute a 2D binned kernel density estimate and are used as standard
         deviation of the bivariate Gaussian kernel. If \code{bandWidth} is not
         specified it will default to \code{c(3,3)}.
+    }
+    \item{color}{
+        Character specifying the color palette for the density plot. One of the 
+        following color palettes can be specified: \code{"blue", "brown", 
+        "cyan", "gold", "gray", "green", "pink", "purple", "red"}. Please refer 
+        to the vignette for the appearance of these palettes.
     }
     \item{transf}{
         The function mapping the density scale to the color scale. See Details.
@@ -177,5 +183,5 @@ load(system.file("data", "TBPpwm.RData", package="seqPattern"))
 
 plotMotifDensityMap(regionsSeq = zebrafishPromoters, motifPWM = TBPpwm,
                     minScore = "85\%", seqOrder = order(promoterWidth),
-                    flankUp = 400, flankDown = 600)
+                    flankUp = 400, flankDown = 600, color = "red")
 }

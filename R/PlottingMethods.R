@@ -2,8 +2,8 @@ setGeneric(
 name="plotPatternDensityMap",
 def=function(regionsSeq, patterns, seqOrder = c(1:length(regionsSeq)),
     flankUp = NULL, flankDown = NULL, nBin = NULL, bandWidth = NULL,
-    transf = NULL, xTicks = NULL, xTicksAt = NULL, xLabel = "", yTicks = NULL,
-    yTicksAt = NULL, yLabel = "", cexAxis = 8, plotScale = TRUE,
+    color = "blue", transf = NULL, xTicks = NULL, xTicksAt = NULL, xLabel = "",
+    yTicks = NULL, yTicksAt = NULL, yLabel = "", cexAxis = 8, plotScale = TRUE,
     scaleLength = NULL, scaleWidth = 15, addPatternLabel = TRUE, cexLabel = 8,
     labelCol = "black", addReferenceLine = TRUE, plotColorLegend = TRUE,
     outFile = "PatternDensityMap", plotWidth = 2000, plotHeight = 2000,
@@ -16,8 +16,8 @@ setMethod("plotPatternDensityMap",
 signature(regionsSeq = "DNAStringSet"),
 function(regionsSeq, patterns, seqOrder = c(1:length(regionsSeq)),
     flankUp = NULL, flankDown = NULL, nBin = NULL, bandWidth = NULL,
-    transf = NULL, xTicks = NULL, xTicksAt = NULL, xLabel = "", yTicks = NULL,
-    yTicksAt = NULL, yLabel = "", cexAxis = 8, plotScale = TRUE,
+    color = "blue", transf = NULL, xTicks = NULL, xTicksAt = NULL, xLabel = "",
+    yTicks = NULL, yTicksAt = NULL, yLabel = "", cexAxis = 8, plotScale = TRUE,
     scaleLength = NULL, scaleWidth = 15, addPatternLabel = TRUE, cexLabel = 8,
     labelCol = "black", addReferenceLine = TRUE, plotColorLegend = TRUE,
     outFile = "PatternDensityMap", plotWidth = 2000, plotHeight = 2000,
@@ -60,6 +60,12 @@ function(regionsSeq, patterns, seqOrder = c(1:length(regionsSeq)),
         if(length(flankDown) == 0){
             flankDown <- width(regionsSeq)[1] - flankUp
         }
+        if(!(color %in% c("green","cyan","blue","purple","pink","red","orange",
+        "brown","gray"))){
+            stop("Specified color scale not supported! Please choose one of the 
+following color scales: 'green','cyan','blue','purple','pink','red','orange',
+'brown','gray', and refer to the vignette for their appearance.")
+        }
         
         message("\nGetting oligonucleotide occurrence matrix...")
         patterns.occurence.melted.list <- getPatternOccurrenceList(regionsSeq =
@@ -68,10 +74,10 @@ function(regionsSeq, patterns, seqOrder = c(1:length(regionsSeq)),
         
         a <- .pattern.smoothscatter(melted = patterns.occurence.melted.list,
         orig = regionsSeq, patterns = patterns, flankUp = flankUp,
-        flankDown = flankDown, bw = bandWidth, nbin = nBin, transf = transf,
-        xTicks = xTicks, xTicksAt = xTicksAt, xLabel = xLabel, yTicks = yTicks,
-        yTicksAt = yTicksAt, yLabel = yLabel, cex.axis = cexAxis,
-        plot.scale = plotScale, scale.length = scaleLength,
+        flankDown = flankDown, bw = bandWidth, nbin = nBin, color = color,
+        transf = transf, xTicks = xTicks, xTicksAt = xTicksAt, xLabel = xLabel,
+        yTicks = yTicks, yTicksAt = yTicksAt, yLabel = yLabel,
+        cex.axis = cexAxis, plot.scale = plotScale, scale.length = scaleLength,
         scale.width = scaleWidth, add.label = addPatternLabel,
         cex.label = cexLabel, label.col = labelCol,
         addReferenceLine = addReferenceLine, plotColorLegend = plotColorLegend,
@@ -139,7 +145,7 @@ setGeneric(
 name="plotMotifDensityMap",
 def=function(regionsSeq, motifPWM, minScore = "80%",
     seqOrder = c(1:length(regionsSeq)), flankUp = NULL, flankDown = NULL,
-    nBin = NULL, bandWidth = NULL, transf = NULL, xTicks = NULL,
+    nBin = NULL, bandWidth = NULL, color = "blue", transf = NULL, xTicks = NULL,
     xTicksAt = NULL, xLabel = "", yTicks = NULL, yTicksAt = NULL, yLabel = "",
     cexAxis = 8, plotScale = TRUE, scaleLength = NULL, scaleWidth = 15,
     addReferenceLine = TRUE, plotColorLegend = TRUE, outFile = "DensityMap",
@@ -152,7 +158,7 @@ setMethod("plotMotifDensityMap",
 signature(regionsSeq = "DNAStringSet", motifPWM = "matrix"),
 function(regionsSeq, motifPWM, minScore = "80%",
     seqOrder = c(1:length(regionsSeq)), flankUp = NULL, flankDown = NULL,
-    nBin = NULL, bandWidth = NULL, transf = NULL, xTicks = NULL,
+    nBin = NULL, bandWidth = NULL, color = "blue", transf = NULL, xTicks = NULL,
     xTicksAt = NULL, xLabel = "", yTicks = NULL, yTicksAt = NULL, yLabel = "",
     cexAxis = 8, plotScale = TRUE, scaleLength = NULL, scaleWidth = 15,
     addReferenceLine = TRUE, plotColorLegend = TRUE, outFile = "DensityMap",
@@ -174,6 +180,13 @@ function(regionsSeq, motifPWM, minScore = "80%",
             flankDown <- width(regionsSeq)[1] - flankUp
         }
         
+        if(!(color %in% c("green","cyan","blue","purple","pink","red","orange",
+        "brown","gray"))){
+            stop("Specified color scale not supported! Please choose one of the 
+following color scales: 'green','cyan','blue','purple','pink','red','orange','
+brown','gray', and refer to the vignette for their appearance.")
+        }
+
         message("\nGetting motif occurrence matrix...")
         motif.occurence.melted <- motifScanHits(regionsSeq = regionsSeq,
         motifPWM = motifPWM, minScore = minScore, seqOrder = seqOrder)
@@ -187,9 +200,9 @@ Try lowering the score threshold.\nExiting without making a density plot.\n\n")
         
         a <- .pattern.smoothscatter(melted = motif.occurence.melted.list,
         orig = regionsSeq, patterns = "motif", flankUp = flankUp,
-        flankDown = flankDown, bw = bandWidth, nbin = nBin, transf = transf,
-        xTicks = xTicks, xTicksAt = xTicksAt, xLabel = xLabel, yTicks=yTicks,
-        yTicksAt=yTicksAt, yLabel = yLabel, cex.axis = cexAxis,
+        flankDown = flankDown, bw = bandWidth, nbin = nBin, color = color,
+        transf = transf, xTicks = xTicks, xTicksAt = xTicksAt, xLabel = xLabel,
+        yTicks=yTicks, yTicksAt=yTicksAt, yLabel = yLabel, cex.axis = cexAxis,
         plot.scale = plotScale, scale.length = scaleLength,
         scale.width = scaleWidth, add.label = FALSE, cex.label = cexAxis,
         addReferenceLine = addReferenceLine, plotColorLegend = plotColorLegend,
@@ -291,10 +304,10 @@ function(regionsSeq, motifPWM, seqOrder = c(1:length(regionsSeq)),
         message("\nPlotting heatmap...")
         png(filename=outFile, width = plotWidth, height = plotHeight)
         
-        breaks <- c(0,60,seq(62,90,2),100)
-        cols <- maPalette(low = "darkblue", high = "yellow", mid = "green",
-        k = length(breaks))
-        cols <- cols[-length(cols)/2]
+        breaks <- c(0,60,seq(62,100,2))
+        colsFun <- colorRampPalette(c("darkblue", "blue", "cyan", "yellow",
+        "red2"))
+        cols <- colsFun(length(breaks) - 1)
         
         if(plotColorLegend){
             layout(mat = matrix(c(2,1), nrow = 1), widths = c(0.88, 0.12))

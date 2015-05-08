@@ -26,7 +26,7 @@ BiocStyle::latex()
 oligonucleotide sequence patterns and motif occurrences}
 
 \author{Vanja Haberle \footnote{vanja.haberle@gmail.com}}
-\date{February 2, 2015}
+\date{May 8, 2015}
 
 \begin{document}
 <<setup, echo=FALSE>>=
@@ -66,6 +66,9 @@ oligonucleotides can be analysed simultaneously and their density plotted on
 the same colour scale allowing visual comparison of enrichments/depletions of
 various oligonucleotides.
 \item
+Visualising average oligonucleotide profile for a set of sequences centred at a 
+common reference point.
+\item
 Obtaining positions of occurrences of motifs defined by a PWM in an ordered set 
 of sequences centred at a common reference point in a matrix-like 
 representation. A custom threshold can be applied to report only motif matches 
@@ -77,6 +80,9 @@ percentage of the maximal PWM score are visualised.
 \item
 Visualising motif scanning scores for an ordered set of sequences centred at a 
 common reference point in the form of a heatmap.
+\item
+Visualising average motif occurrence profile (motif specified by a PWM) for a 
+set of sequences centred at a common reference point. 
 \end{itemize}
 
 
@@ -122,7 +128,7 @@ head(zebrafishPromoters24h)
 @
 
 This is a \Rcode{data.frame} object that contains genomic coordinates of all 
-(12078 in total) promoters active in zebrafish \emph{Danio rerio} embryos at 24 
+(10785 in total) promoters active in zebrafish \emph{Danio rerio} embryos at 24 
 hpf \cite{Nepal:2013}. For each promoter additional information is provided, 
 including position of the dominant (most frequently used) TSS position, number 
 of CAGE tags per million supporting that promoter and the interquantile width
@@ -168,38 +174,44 @@ sequences will be aligned. We also want to keep the information about promoter
 interquantile width, since this feature will be used to order the promoters in 
 the density map.
 <<>>=
+# create GRanges of dominant TSS position with associated metadata
 zebrafishPromotersTSS <- GRanges(seqnames = zebrafishPromoters24h$chr,
             ranges = IRanges(start = zebrafishPromoters24h$dominantTSS, 
             end = zebrafishPromoters24h$dominantTSS), 
             strand = zebrafishPromoters24h$strand, 
             interquantileWidth = zebrafishPromoters24h$interquantileWidth, 
             seqlengths = seqlengths(Drerio))
+# get regions flanking TSS - 400 bp upstream and 800 bp downstream
 zebrafishPromotersTSSflank <- promoters(zebrafishPromotersTSS, upstream = 400, 
                                         downstream = 800)
+# obtain genomic sequence of flanking regions
 zebrafishPromotersTSSflankSeq <- getSeq(Drerio, zebrafishPromotersTSSflank)
 @
 
-Note that all regions need to have the same width, and in cases when flanking 
-regions fall outside of chromosome boundaries they need to be removed prior to 
-plotting the oligonucleotide density map.
+Note that all regions need to have the same width for plotting, and in cases 
+when flanking regions fall outside of chromosome boundaries they need to be 
+removed prior to plotting the oligonucleotide density map. (For instance, use 
+the \Rcode{trim} function from the \emph{GenomicRanges} package to restrict 
+regions within the boundaries of chromosomes and then remove ranges shorter than 
+expected width.)
 
 \subsection{Plotting dinucleotide density maps}
 Once a \Rcode{DNAStringSet} object is obtained, it can be used to plot the 
 density of oligonucleotides of interest. In the following example, we will plot 
-the density of TA, AA, GC and CG dinucleotides for the obtained set of
+the density of AA, TA, CG and GC dinucleotides for the obtained set of
 sequences sorted by the promoter interquantile width (Figure~
 \ref{fig:OligonucleotideDensities}):
 <<eval=FALSE>>=
 plotPatternDensityMap(regionsSeq = zebrafishPromotersTSSflankSeq, 
-            patterns = c("TA", "AA", "GC", "CG"), 
+            patterns = c("AA", "TA", "CG", "GC"), 
             seqOrder = order(zebrafishPromotersTSSflank$interquantileWidth), 
-            flankUp = 400, flankDown = 800)
+            flankUp = 400, flankDown = 800, color = "blue")
 @
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=140mm,height=140mm]{images/OligonucleotideDensity.jpg}
-\caption{Density of TA, AA, GC and CG dinucleotides in regions flanking
+\includegraphics[width=140mm,height=123mm]{images/OligonucleotideDensity.jpg}
+\caption{Density of AA, TA, CG and GC dinucleotides in regions flanking
 dominant TSS in zebrafish 24h embryo promoters ordered by promoter width}
 \label{fig:OligonucleotideDensities}
 \end{figure}
@@ -209,13 +221,29 @@ reference point (\Rcode{flankUp} and \Rcode{flankDown}) needs to be specified
 in cases where these are asymmetric. If not specified, it is assumed that the
 reference point is located in the middle of the provided sequences (\emph{i.e.} 
 half of the total length in bp). There is also a number of graphical parameters 
-that can be adjusted, such as width and hight of the plot, axis labels, scale 
-bars, \emph{etc.}, and they are explained in detail in the help page of the 
-\Rcode{plotPatternDensityMap} function. The two main parameters that define how 
-the density of the pattern will be calculated and plotted are \Rcode{nBin} and 
-\Rcode{bandWidth}. The \Rcode{nBin} parameter specifies the number of bins in 
-which the plot will be divided across x (horizontal, corresponding to the 
-sequence length) and y axes (vertical, corresponding to the number of 
+that can be adjusted, such as color palette, width and hight of the plot in
+pixels, axis labels, scale bars, \emph{etc.}, and they are explained in detail
+in the help page of the \Rcode{plotPatternDensityMap} function. Default colour
+palette is in shades of blue going from white through lightblue to darkblue.
+Alternative colour palettes are available as shown in 
+Figure~\ref{fig:ColorPalettes}, and can be specified by setting the \Rcode{color} 
+parameter to the name of the corresponding palette. 
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=100mm,height=67mm]{images/ColorPalettes.pdf}
+\caption{Available colour palettes for plotting oligonucleotide density maps. 
+Name of each palette is indicated and can be used as \Rcode{color} parameter 
+within the \Rcode{plotPatternDensityMap} function to specify the corresponding 
+colour palette for plotting.}
+\label{fig:ColorPalettes}
+\end{figure}
+
+The two main parameters that define how the density of
+the pattern will be calculated and plotted are \Rcode{nBin} and
+\Rcode{bandWidth}. The \Rcode{nBin} parameter specifies the number of bins in
+which the plot will be divided across x (horizontal, corresponding to the
+sequence length) and y axes (vertical, corresponding to the number of
 sequences). The default value is to calculate the density at each position in 
 every sequence, \emph{i.e.} the number of bins in the horizontal direction is 
 set to the sequence length and in the vertical direction to the total number of 
@@ -235,7 +263,7 @@ the above example that calculates the density of 4 dinucleotides can be run on
 
 <<eval=FALSE>>=
 plotPatternDensityMap(regionsSeq = zebrafishPromotersTSSflankSeq, 
-            patterns = c("TA", "AA", "GC", "CG"), 
+            patterns = c("AA", "TA", "CG", "GC"), 
             seqOrder = order(zebrafishPromotersTSSflank$interquantileWidth),
             flankUp = 400, flankDown = 800, useMulticore = TRUE, nrCores = 4)
 @
@@ -246,7 +274,7 @@ density plots reveal complex pattern of dinucleotide enrichments/depletions in
 zebrafish promoters (Figure~\ref{fig:OligonucleotideDensities}). The density of
 all dinucleotides is plotted on the same colour scale, which allows direct
 comparison. For instance, it is clear that CG dinucleotides are generally 
-abundant than other dinucleotides. The region immediately upstream and 
+less abundant than other dinucleotides. The region immediately upstream and 
 downstream of TSS is enriched for CG and GC dinucleotides and depleted for TA 
 and AA dinucleotides. Within this region, there is narrow band of TA and AA 
 enrichment {\raise.17ex\hbox{$\scriptstyle\mathtt{\sim}$}}30 bp upstream of the 
@@ -255,11 +283,11 @@ characterised by alternating bands of enrichments and depletions visible for
 all four dinucleotides and this pattern is more prominent in broad promoters
 (bottom).Thus, visualising sequence in such way reveals differences in 
 underlying sequence composition and its relation to the reference point, as
-well as how this changes with the provided feature.
+well as how this changes with some associated feature.
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=140mm,height=170mm]{images/DensitySchematic.jpg}
+\includegraphics[width=140mm,height=170mm]{images/DensitySchematic.pdf}
 \caption{Schematics illustrating steps in pattern density calculation and 
 visualisation. Genomic sequences (of the same length) are sorted and aligned 
 into a matrix-like representation. Marking the presence of selected
@@ -283,47 +311,104 @@ WW and all SS dinucleotides in the same plot (Figure~
 plotPatternDensityMap(regionsSeq = zebrafishPromotersTSSflankSeq, 
             patterns = c("WW", "SS"), 
             seqOrder = order(zebrafishPromotersTSSflank$interquantileWidth), 
-            flankUp = 400, flankDown = 800, labelCol = "white")
+            flankUp = 400, flankDown = 800, color = "cyan", labelCol = "white")
 @
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=140mm,height=70mm]{images/MetaoligonucleotideDensity.jpg}
+\includegraphics[width=140mm,height=63mm]{images/MetaoligonucleotideDensity.jpg}
 \caption{Density of WW and SS dinucleotides in regions flanking dominant TSS in 
 zebrafish 24h embryo promoters ordered by promoter width}
 \label{fig:MetaligonucleotideDensities}
 \end{figure}
 
-\subsection{Plotting consensus sequence density map}
-Analogously to plotting dinucleotide density as described above, the 
-\Rcode{plotPatternDensityMap} function can be used to visualise the density of 
-longer consensus sequences specified using IUPAC nucleotide ambiguity codes.
-For instance, one can use a consensus sequence for binding of a certain
-transcription factor to visualise density of these sites with respect to some 
-reference point. Here we show an example of plotting density of the TATA-box 
-consensus sequence (TATAWARA) across zebrafish promoters aligned to dominant
-TSS and sorted by promoter width:
+
+\subsection{Plotting average oligonucleotide profiles}
+In addition to plotting oligonucleotide density maps, which show how a 
+particular sequence pattern around referent point changes with some associated 
+feature, the package also provides function for plotting average oligonucleotide 
+profiles. For instance, we can visualise the average profile of WW and SS 
+metadinucleotides for two groups of promoters separated by width (\emph{i.e.} 
+sharp and broad promoters; \ref{fig:OligonucleotideAverage}) as follows:
 <<eval=FALSE>>=
-plotPatternDensityMap(regionsSeq = zebrafishPromotersTSSflankSeq, 
-            patterns = c("TATAWAWR"), 
-            seqOrder = order(zebrafishPromotersTSSflank$interquantileWidth), 
-            flankUp = 400, flankDown = 800, nBin = c(1200, 3000), 
-            bandWidth = c(2,6), addPatternLabel = FALSE)
+# make index of sharp and broad promoters
+sIdx <- zebrafishPromotersTSSflank$interquantileWidth <= 9
+bIdx <- zebrafishPromotersTSSflank$interquantileWidth > 9
+# plot average dinucleotide profile for sharp promoters
+par(mfrow = c(1,2), mar = c(4.5,4,1,1))
+plotPatternOccurrenceAverage(regionsSeq = zebrafishPromotersTSSflankSeq[sIdx], 
+            patterns = c("WW", "SS"), flankUp = 400, flankDown = 800, 
+            smoothingWindow = 3, color = c("red3", "blue3"), cex.axis = 0.9)
+# plot average dinucleotide profile for broad promoters
+plotPatternOccurrenceAverage(regionsSeq = zebrafishPromotersTSSflankSeq[bIdx], 
+            patterns = c("WW", "SS"), flankUp = 400, flankDown = 800, 
+            smoothingWindow = 3, color = c("red3", "blue3"), cex.axis = 0.9)
 @
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=70mm,height=70mm]{images/ConsensusDensity.jpg}
-\caption{Density of the TATA-box consensus sequence (TATAWAWR) in regions 
-flanking dominant TSS in zebrafish 24h embryo promoters ordered by promoter 
-width}
+\includegraphics[width=140mm,height=66mm]{images/OligonucleotideAverage.pdf}
+\caption{Average profile of WW and SS dinucleotides in region flanking dominant 
+TSS for sharp promoters (width < 10 bp; left) and broad promoters (width >= 10 
+bp)}
+\label{fig:OligonucleotideAverage}
+\end{figure}
+
+
+\subsection{Plotting consensus sequence density map}
+Analogously to plotting dinucleotide density as described above, the 
+\Rcode{plotPatternDensityMap} function can be used to visualise the density of 
+longer consensus sequences specified using IUPAC nucleotide ambiguity codes. For 
+instance, one can use a consensus sequence of a transcription factor binding 
+site to visualise density of these sites with respect to some reference point. 
+Here we show an example of plotting density of the TATA-box consensus sequence 
+(TATAWAWR) and GC-box / Sp1 binding site consensus sequence (RGGMGGR) across 
+zebrafish promoters for sense and antisense strand separately. (Note that the 
+easiest way to visualise occurrence of a consensus sequence in the antisense 
+strand is to use the reverse complement of the consensus sequence, which in our 
+case corresponds to YWTWTATA and YCCKCCY, for TATA-box and GC-box respectively.)
+<<>>=
+# get regions flanking dominant TSS - 200bp upstream and downstream
+zebrafishPromotersTSSflank <- promoters(zebrafishPromotersTSS, upstream = 200, 
+                                        downstream = 200)
+# obtain genomic sequence of the flanking regions
+zebrafishPromotersTSSflankSeq <- getSeq(Drerio, zebrafishPromotersTSSflank)
+@
+<<eval=FALSE>>=
+# plot density of TATA-box consensus sequence in pink
+plotPatternDensityMap(regionsSeq = zebrafishPromotersTSSflankSeq, 
+            patterns = c("TATAWAWR", "YWTWTATA"), 
+            seqOrder = order(zebrafishPromotersTSSflank$interquantileWidth), 
+            flankUp = 200, flankDown = 200, nBin = c(400, 10000), 
+            bandWidth = c(1,6), color = "pink", addPatternLabel = FALSE)
+ # plot density of GC-box consensus sequence in purple
+plotPatternDensityMap(regionsSeq = zebrafishPromotersTSSflankSeq, 
+            patterns = c("RGGMGGR", "YCCKCCY"), 
+            seqOrder = order(zebrafishPromotersTSSflank$interquantileWidth), 
+            flankUp = 200, flankDown = 200, nBin = c(400, 10000), 
+            bandWidth = c(1,6), color = "purple", addPatternLabel = FALSE)
+@
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=140mm,height=123mm]{images/ConsensusDensity.jpg}
+\caption{Density of the TATA-box consensus sequence (TATAWAWR; top) and GC-box 
+(Sp1 binding site) consensus sequence (RGGMGGR; bottom) in regions flanking 
+dominant TSS in zebrafish 24h embryo promoters ordered by promoter width. 
+Matches in the sense strand are shown on the left and in the antisense strand on 
+the right.}
 \label{fig:ConsensusDensity}
 \end{figure}
 
-The resulting density plot (Figure~\ref{fig:ConsensusDensity}) shows that the 
+In the resulting density plot (Figure~\ref{fig:ConsensusDensity}) promoters are 
+aligned to dominant TSS and sorted by promoter width. This reveals that the 
 TATA-box consensus sequence is positioned very precisely at {\raise.17ex\hbox{$
-\scriptstyle\mathtt{\sim}$}}30 bp upstream of the TSS and that it is present 
-only in very sharp promoters (top), but not in the broad promoters (bottom).
+\scriptstyle\mathtt{\sim}$}}30 bp upstream of the TSS mainly in the sense strand 
+and that it is present only in very sharp promoters (top of the density plot), 
+but not in the broad promoters (bottom of the density plot). In contrast, the 
+GC-box (Sp1 binding site) consensus sequence is present in both strands and in 
+both sharp and broad promoters roughly in the region 40-80 bp upstream of the 
+TSS, but it seems more focused in sharp promoters.
 
 
 
@@ -346,16 +431,16 @@ data(TBPpwm)
 TBPpwm
 @
 
-The \Rcode{plotMotifDensityMap} takes a PWM as an input, scans all sequences
+The \Rcode{plotMotifDensityMap} function takes a PWM as an input, scans all sequences
 for the occurrence of the motif above the specified match threshold
-(\emph{e.g.} 90\%) and visualises the density of the motif
+(\emph{e.g.} 90\%) and visualises the density of the motif with respect to the reference point
 (Figure~\ref{fig:MotifDensity}, left):
 
 <<eval=FALSE>>=
 plotMotifDensityMap(regionsSeq = zebrafishPromotersTSSflankSeq, 
             motifPWM = TBPpwm, minScore = "90%", 
             seqOrder = order(zebrafishPromotersTSSflank$interquantileWidth),
-            flankUp = 400, flankDown = 800)
+            flankUp = 200, flankDown = 200, color = "red")
 @
 
 \subsection{Plotting motif scanning scores}
@@ -366,12 +451,12 @@ of a heatmap (Figure~\ref{fig:MotifDensity}, right):
 plotMotifScanScores(regionsSeq = zebrafishPromotersTSSflankSeq, 
             motifPWM = TBPpwm,
             seqOrder = order(zebrafishPromotersTSSflank$interquantileWidth),
-            flankUp = 400, flankDown = 800)
+            flankUp = 200, flankDown = 200)
 @
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=120mm,height=60mm]{images/MotifDensity.jpg}
+\includegraphics[width=140mm,height=63mm]{images/MotifDensity.jpg}
 \caption{Density of TATA-box motif occurrence above 90\% of PWM score (left)
 and heatmap of PWM scanning scores along all sequences (right) in regions
 flanking dominant TSS in zebrafish 24h embryo promoters ordered by promoter
@@ -387,6 +472,35 @@ to the reference point and might occur only in a subset of sequences
 correlating with some feature, which will be visible when the sequences are
 sorted according to that feature.
 
+\subsection{Plotting average motif occurrence profile}
+Analogously to plotting average oligonucleotide profiles described above, 
+average occurrence profile of a motif specified by a PWM can be visualised using 
+\Rcode{plotMotifOccurrenceAverage} function. The following code exemplifies how 
+to visualise average occurrence of a TATA-box motif (above 90\% match to PWM) in 
+previously defined subsets of sharp and broad promoters (Figure~\ref{fig:MotifAverage}):
+<<eval=FALSE>>=
+# make index of sharp and broad promoters
+sIdx <- zebrafishPromotersTSSflank$interquantileWidth <= 9
+bIdx <- zebrafishPromotersTSSflank$interquantileWidth > 9
+# plot average motif occurrence profile for sharp promoters
+plotMotifOccurrenceAverage(regionsSeq = zebrafishPromotersTSSflankSeq[sIdx], 
+            motifPWM = TBPpwm, minScore = "90%", flankUp = 200, flankDown = 200, 
+            smoothingWindow = 3, color = c("red3"), cex.axis = 0.9)
+# add average motif occurrence profile for broad promoters to the existing plot
+plotMotifOccurrenceAverage(regionsSeq = zebrafishPromotersTSSflankSeq[bIdx], 
+            motifPWM = TBPpwm, minScore = "90%", flankUp = 200, flankDown = 200, 
+            smoothingWindow = 3, color = c("blue3"), add = TRUE)
+legend("topright", legend = c("sharp", "broad"), col = c("red3", "blue3"), 
+bty = "n", lwd = 1)
+@
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=70mm,height=66mm]{images/MotifAverage.pdf}
+\caption{Average profile of TATA-box motif occurrence above 90\% of PWM score in 
+regions flanking dominant TSS in sharp (red) and broad (blue) promoters}
+\label{fig:MotifAverage}
+\end{figure}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

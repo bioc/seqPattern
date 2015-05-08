@@ -1,4 +1,17 @@
-Updated to version 0.99.3 (24/03/2015)
+Updated to version 1.0.1 in release and 1.1.1 in development (08/05/2015)
+06/05/2015    Updated the vignette with sections describing how to plot average 
+              profiles.
+01/05/2015    Added new colour palettes for plotting density plots. Eight  
+              different colour palettes are now available in addition to 
+              previous default palette in shades of blue. Preview of the
+              palettes is available in the vignette.
+30/04/2015    Marray package is no longer imported and, instead of the 
+              maPalette() function for creating colour palettes, the           
+              colorRampPalette() function is now used throughout.
+
+Updated to version 1.0.0 (17/04/2015)
+17/04/2015    Bioconductor 3.1 release
+Updated to version 0.99.3 (23/03/2015)
 23/03/2015    Added function plotMotifOccurrenceAverage() for plotting
               average profile of motif occurrence.
 21/03/2015    Added function plotPatternOccurrenceAverage() for plotting
