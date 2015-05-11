@@ -12,9 +12,9 @@ allowing visual density comparison across different patterns.
 }
 \usage{
 plotPatternDensityMap(regionsSeq, patterns, seqOrder = c(1:length(regionsSeq)),
-    flankUp = NULL, flankDown = NULL, nBin = NULL, bandWidth = NULL,
-    transf = NULL, xTicks = NULL, xTicksAt = NULL, xLabel = "", yTicks = NULL,
-    yTicksAt = NULL, yLabel = "", cexAxis = 8, plotScale = TRUE,
+    flankUp = NULL, flankDown = NULL, nBin = NULL, bandWidth = NULL, 
+    color = "blue", transf = NULL, xTicks = NULL, xTicksAt = NULL, xLabel = "", 
+    yTicks = NULL, yTicksAt = NULL, yLabel = "", cexAxis = 8, plotScale = TRUE,
     scaleLength = NULL, scaleWidth = 15, addPatternLabel = TRUE, cexLabel = 8,
     labelCol = "black", addReferenceLine = TRUE, plotColorLegend = TRUE,
     outFile = "PatternDensityMap", plotWidth = 2000, plotHeight = 2000,
@@ -69,6 +69,12 @@ plotPatternDensityMap(regionsSeq, patterns, seqOrder = c(1:length(regionsSeq)),
         compute a 2D binned kernel density estimate and are used as standard
         deviation of the bivariate Gaussian kernel. If \code{bandWidth} is not
         specified it will default to \code{c(3,3)}.
+    }
+    \item{color}{
+        Character specifying the color palette for the density plot. One of the 
+        following color palettes can be specified: \code{"blue", "brown", 
+        "cyan", "gold", "gray", "green", "pink", "purple", "red"}. Please refer 
+        to the vignette for the appearance of these palettes.
     }
     \item{transf}{
         The function mapping the density scale to the color scale. See Details.
@@ -181,9 +187,11 @@ promoterWidth <- elementMetadata(zebrafishPromoters)$interquantileWidth
 
 # dinucleotide patterns
 plotPatternDensityMap(regionsSeq = zebrafishPromoters, patterns = c("TA", "GC"),
-            seqOrder = order(promoterWidth), flankUp = 400, flankDown = 600)
+            seqOrder = order(promoterWidth), flankUp = 400, flankDown = 600, 
+            color = "blue")
 
 # motif consensus sequence
 plotPatternDensityMap(regionsSeq = zebrafishPromoters, patterns = "TATAWAWR",
-            seqOrder = order(promoterWidth), flankUp = 400, flankDown = 600)
+            seqOrder = order(promoterWidth), flankUp = 400, flankDown = 600,
+            color = "cyan")
 }

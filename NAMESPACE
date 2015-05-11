@@ -4,7 +4,6 @@ import(GenomicRanges)
 import(IRanges)
 import(KernSmooth)
 
-importFrom(marray, maPalette)
 importFrom(plotrix, color.legend)
 
 exportMethods(motifScanHits, motifScanScores, getPatternOccurrenceList,
